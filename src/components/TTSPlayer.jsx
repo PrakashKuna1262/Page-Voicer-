@@ -499,48 +499,121 @@ export default function TTSPlayer({ text, lang, disabled }) {
   };
 
   const pauseSpeech = () => {
+    console.log("⏸ Pause called", {
+      speaking: window.speechSynthesis.speaking,
+      paused: window.speechSynthesis.paused,
+      stateSpeaking: speaking,
+      statePaused: paused
+    });
+    
     if (window.speechSynthesis.speaking && !window.speechSynthesis.paused) {
-      window.speechSynthesis.pause();
+      try {
+        window.speechSynthesis.pause();
+        setPaused(true);
+        setSpeaking(false);
+        
+        // Track pause time and update total elapsed time
+        if (speechStartTimeRef.current) {
+          const now = Date.now();
+          const elapsedSinceStart = now - speechStartTimeRef.current;
+          totalElapsedTimeRef.current += elapsedSinceStart;
+          speechStartTimeRef.current = null;
+          pauseTimeRef.current = now;
+          
+          console.log("⏸ Paused at elapsed time:", totalElapsedTimeRef.current, "ms");
+        }
+        
+        // Ensure we have the paused text stored
+        if (!pausedText && text) {
+          setPausedText(text);
+          console.log("⏸ Stored paused text");
+        }
+      } catch (error) {
+        console.error("Error pausing speech:", error);
+      }
+    } else if (speaking && !paused) {
+      // If API state doesn't match, update our state
+      console.log("⏸ API state mismatch, updating local state");
       setPaused(true);
       setSpeaking(false);
       
-      // Track pause time and update total elapsed time
-      if (speechStartTimeRef.current) {
-        const now = Date.now();
-        const elapsedSinceStart = now - speechStartTimeRef.current;
-        totalElapsedTimeRef.current += elapsedSinceStart;
-        speechStartTimeRef.current = null;
-        pauseTimeRef.current = now;
-        
-        console.log("⏸ Paused at elapsed time:", totalElapsedTimeRef.current, "ms");
+      if (!pausedText && text) {
+        setPausedText(text);
       }
     }
   };
 
   const resumeSpeech = () => {
-    if (window.speechSynthesis.paused) {
-      window.speechSynthesis.resume();
+    console.log("▶ Resume called", {
+      paused: window.speechSynthesis.paused,
+      speaking: window.speechSynthesis.speaking,
+      statePaused: paused,
+      stateSpeaking: speaking,
+      pausedText: !!pausedText,
+      pausedTextLength: pausedText?.length,
+      text: !!text,
+      chunkedSpeech: chunkedSpeechRef.current
+    });
+    
+    // Ensure we have text to resume
+    const textToResume = pausedText || text;
+    if (!textToResume || !textToResume.trim()) {
+      console.warn("⚠️ No text to resume");
       setPaused(false);
-      setSpeaking(true);
-      
-      // Resume tracking time
-      if (pauseTimeRef.current) {
-        const pauseDuration = Date.now() - pauseTimeRef.current;
-        // Don't add pause duration to elapsed time, just reset start time
-        speechStartTimeRef.current = Date.now();
-        pauseTimeRef.current = null;
-        
-        console.log("▶ Resumed, continuing from elapsed time:", totalElapsedTimeRef.current, "ms");
-      }
-    } else if (chunkedSpeechRef.current && pausedText) {
-      // Resume chunked speech from where it paused
-      const remainingChunks = textChunksRef.current.slice(currentChunkIndexRef.current);
-      if (remainingChunks.length > 0) {
-        const remainingText = remainingChunks.join(' ');
+      setSpeaking(false);
+      return;
+    }
+    
+    // Try to resume if actually paused in API
+    if (window.speechSynthesis.paused) {
+      try {
+        window.speechSynthesis.resume();
         setPaused(false);
-        startSpeech(remainingText);
+        setSpeaking(true);
+        setStarting(false);
+        
+        // Resume tracking time
+        if (pauseTimeRef.current) {
+          speechStartTimeRef.current = Date.now();
+          pauseTimeRef.current = null;
+          console.log("▶ Resumed using API resume(), continuing from elapsed time:", totalElapsedTimeRef.current, "ms");
+        }
+        return;
+      } catch (error) {
+        console.error("Error resuming speech with API:", error);
+        // Fall through to restart logic
       }
     }
+    
+    // If resume didn't work or speech isn't paused in API, restart from remaining text
+    // Cancel any existing speech first
+    if (window.speechSynthesis.speaking || window.speechSynthesis.pending) {
+      window.speechSynthesis.cancel();
+    }
+    
+    // Small delay to ensure cancellation completes
+    setTimeout(() => {
+      // Handle chunked speech resume first
+      if (chunkedSpeechRef.current && textChunksRef.current.length > 0) {
+        const remainingChunks = textChunksRef.current.slice(currentChunkIndexRef.current);
+        if (remainingChunks.length > 0) {
+          const remainingText = remainingChunks.join(' ');
+          console.log("▶ Restarting chunked speech from chunk", currentChunkIndexRef.current, "out of", textChunksRef.current.length);
+          setPaused(false);
+          setStarting(false);
+          startSpeech(remainingText);
+          return;
+        }
+      }
+      
+      // Restart from paused text or current text
+      if (textToResume) {
+        console.log("▶ Restarting speech from remaining text, length:", textToResume.length);
+        setPaused(false);
+        setStarting(false);
+        startSpeech(textToResume);
+      }
+    }, 100);
   };
 
   const stopSpeech = () => {
