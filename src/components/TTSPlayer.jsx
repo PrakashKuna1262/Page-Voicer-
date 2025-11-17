@@ -67,7 +67,7 @@ export default function TTSPlayer({ text, lang, disabled }) {
   }, [lang]);
 
   const getVoiceForType = () => {
-    if (!selectedVoice && voices.length > 0) {
+    if (!selectedVoice && voices.length > 0 && voiceType === "default") {
       const langCode = LANGUAGE_CODES[lang] || "en-US";
       const langPrefix = langCode.split("-")[0];
       return voices.find((v) => v.lang.startsWith(langPrefix)) || voices[0];
@@ -83,19 +83,71 @@ export default function TTSPlayer({ text, lang, disabled }) {
       if (matchingVoices.length > 0) {
         // Filter by gender (this is a heuristic - browsers don't always provide gender)
         if (voiceType === "male") {
-          const maleVoice = matchingVoices.find((v) => 
-            v.name.toLowerCase().includes("male") || 
-            v.name.toLowerCase().includes("david") ||
-            v.name.toLowerCase().includes("mark")
-          );
+          // Try to find male voice by name patterns
+          const maleVoice = matchingVoices.find((v) => {
+            const name = v.name.toLowerCase();
+            return name.includes("male") || 
+                   name.includes("david") ||
+                   name.includes("mark") ||
+                   name.includes("daniel") ||
+                   name.includes("thomas") ||
+                   name.includes("james") ||
+                   name.includes("alex") ||
+                   name.includes("microsoft david") ||
+                   name.includes("google uk english male");
+          });
           return maleVoice || matchingVoices[0];
         } else {
-          const femaleVoice = matchingVoices.find((v) => 
-            v.name.toLowerCase().includes("female") || 
-            v.name.toLowerCase().includes("zira") ||
-            v.name.toLowerCase().includes("samantha") ||
-            v.name.toLowerCase().includes("susan")
-          );
+          // Female voice - try multiple patterns and exclude male patterns
+          const malePatterns = ["male", "david", "mark", "daniel", "thomas", "james", "alex"];
+          
+          // First, try to find by explicit female patterns
+          let femaleVoice = matchingVoices.find((v) => {
+            const name = v.name.toLowerCase();
+            return name.includes("female") || 
+                   name.includes("zira") ||
+                   name.includes("samantha") ||
+                   name.includes("susan") ||
+                   name.includes("hazel") ||
+                   name.includes("linda") ||
+                   name.includes("karen") ||
+                   name.includes("monica") ||
+                   name.includes("catherine") ||
+                   name.includes("laura") ||
+                   name.includes("sarah") ||
+                   name.includes("anna") ||
+                   name.includes("maria") ||
+                   name.includes("priya") ||
+                   name.includes("neural-2-a") || // Google female voices
+                   name.includes("google uk english female") ||
+                   name.includes("microsoft zira") ||
+                   name.includes("microsoft hazel");
+          });
+          
+          // If not found, try to find a voice that doesn't match male patterns
+          if (!femaleVoice && matchingVoices.length > 1) {
+            femaleVoice = matchingVoices.find((v) => {
+              const name = v.name.toLowerCase();
+              return !malePatterns.some(pattern => name.includes(pattern));
+            });
+          }
+          
+          // If still not found, try to pick a different voice than the first (which is usually male)
+          if (!femaleVoice) {
+            // Try voices from index 1 onwards (skip first which is often male)
+            for (let i = 1; i < matchingVoices.length; i++) {
+              const name = matchingVoices[i].name.toLowerCase();
+              if (!malePatterns.some(pattern => name.includes(pattern))) {
+                femaleVoice = matchingVoices[i];
+                break;
+              }
+            }
+            // If still no match, use the last voice (often a different one)
+            if (!femaleVoice && matchingVoices.length > 1) {
+              femaleVoice = matchingVoices[matchingVoices.length - 1];
+            }
+          }
+          
           return femaleVoice || matchingVoices[0];
         }
       }
@@ -251,6 +303,9 @@ export default function TTSPlayer({ text, lang, disabled }) {
         const voice = getVoiceForType();
         if (voice) {
           utterance.voice = voice;
+          console.log("🎤 Using voice:", voice.name, "for type:", voiceType);
+        } else {
+          console.warn("⚠️ No voice found for type:", voiceType);
         }
 
         utterance.onstart = () => {
@@ -333,6 +388,11 @@ export default function TTSPlayer({ text, lang, disabled }) {
           const voice = getVoiceForType();
           if (voice) {
             utterance.voice = voice;
+            if (index === 0) {
+              console.log("🎤 Using voice:", voice.name, "for type:", voiceType, "(chunked speech)");
+            }
+          } else if (index === 0) {
+            console.warn("⚠️ No voice found for type:", voiceType);
           }
 
           // Set up event handlers
