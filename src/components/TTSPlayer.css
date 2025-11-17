@@ -1,0 +1,434 @@
+/* TTS Player Card */
+.tts-card {
+  background: white;
+  border-radius: 16px;
+  padding: 1rem;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.tts-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  border-color: rgba(235, 51, 73, 0.2);
+}
+
+/* Card Header */
+.tts-card .card-header {
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid #f0f0f0;
+  position: relative;
+}
+
+.tts-card .card-header::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 60px;
+  height: 2px;
+  background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+  border-radius: 2px;
+}
+
+.tts-card .card-header h3 {
+  font-size: 1.2rem;
+  color: #333;
+  font-weight: 700;
+  background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Card Content */
+.tts-card .card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* TTS Settings */
+.tts-settings {
+  margin-bottom: 0.75rem;
+  padding: 0.75rem;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 10px;
+}
+
+.setting-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.setting-row:last-child {
+  margin-bottom: 0;
+}
+
+.setting-row label {
+  font-weight: 600;
+  color: #333;
+  font-size: 0.85rem;
+  min-width: 50px;
+}
+
+.speed-slider {
+  flex: 1;
+  height: 6px;
+  border-radius: 3px;
+  background: #ddd;
+  outline: none;
+  -webkit-appearance: none;
+}
+
+.speed-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #eb3349;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.speed-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #eb3349;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.speed-value {
+  font-weight: 600;
+  color: #eb3349;
+  min-width: 35px;
+  text-align: right;
+  font-size: 0.85rem;
+}
+
+.voice-buttons {
+  display: flex;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.voice-button {
+  flex: 1;
+  padding: 0.4rem 0.75rem;
+  background: white;
+  color: #333;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.voice-button:hover {
+  border-color: #eb3349;
+  background: #fff5f5;
+}
+
+.voice-button.active {
+  background: #eb3349;
+  color: white;
+  border-color: #eb3349;
+}
+
+/* TTS Controls */
+.tts-controls {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* Action Buttons */
+.tts-card .action-button {
+  padding: 0.75rem 1.25rem;
+  border: none;
+  min-width: 120px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+  flex: 1;
+  min-width: 120px;
+}
+
+.tts-card .action-button.success {
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  color: white;
+}
+
+.tts-card .action-button.success::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.tts-card .action-button.success:hover:not(:disabled)::before {
+  width: 300px;
+  height: 300px;
+}
+
+.tts-card .action-button.success:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(17, 153, 142, 0.4);
+}
+
+.tts-card .action-button.pause {
+  background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+  color: white;
+}
+
+.tts-card .action-button.loading {
+  background: linear-gradient(135deg, #9e9e9e 0%, #757575 100%);
+  color: white;
+  cursor: wait;
+  opacity: 0.8;
+}
+
+.tts-card .action-button.pause::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.tts-card .action-button.pause:hover:not(:disabled)::before {
+  width: 300px;
+  height: 300px;
+}
+
+.tts-card .action-button.pause:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 152, 0, 0.4);
+}
+
+.tts-card .action-button.stop {
+  background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+  color: white;
+}
+
+.tts-card .action-button.stop::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.tts-card .action-button.stop:hover:not(:disabled)::before {
+  width: 300px;
+  height: 300px;
+}
+
+.tts-card .action-button.stop:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(235, 51, 73, 0.4);
+}
+
+.tts-card .action-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.tts-card .action-button:disabled {
+  background: #e0e0e0;
+  color: #999;
+  cursor: not-allowed;
+  box-shadow: none;
+  opacity: 0.6;
+}
+
+/* Error Text */
+.tts-card .error-text {
+  color: #eb3349;
+  font-size: 0.8rem;
+  text-align: center;
+  padding: 0.75rem;
+  background: #fff5f5;
+  border-radius: 8px;
+  border: 1px solid #fecaca;
+}
+
+/* Result Box */
+.tts-card .result-box {
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 10px;
+  border-left: 4px solid #eb3349;
+  transition: all 0.3s ease;
+}
+
+.tts-card .result-box:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.tts-card .result-box h4 {
+  margin-bottom: 0.5rem;
+  color: #333;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.tts-card .text-content {
+  color: #555;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  font-size: 0.8rem;
+  padding: 0.5rem;
+  background: white;
+  border-radius: 6px;
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+.tts-card .copy-button {
+  padding: 0.4rem 0.75rem;
+  background: #eb3349;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 6px rgba(235, 51, 73, 0.3);
+}
+
+.tts-card .copy-button:hover {
+  background: #d32f2f;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(235, 51, 73, 0.4);
+}
+
+.tts-card .copy-button:active {
+  transform: translateY(0);
+}
+
+.tts-card .download-button {
+  padding: 0.4rem 0.75rem;
+  background: #2196f3;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 6px rgba(33, 150, 243, 0.3);
+}
+
+.tts-card .download-button:hover:not(:disabled) {
+  background: #1976d2;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(33, 150, 243, 0.4);
+}
+
+.tts-card .download-button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.tts-card .download-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* Scrollbar Styling */
+.tts-card .text-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.tts-card .text-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.tts-card .text-content::-webkit-scrollbar-thumb {
+  background: #eb3349;
+  border-radius: 3px;
+}
+
+.tts-card .text-content::-webkit-scrollbar-thumb:hover {
+  background: #d32f2f;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .tts-card {
+    padding: 1rem;
+  }
+
+  .tts-card .card-header h3 {
+    font-size: 1.2rem;
+  }
+
+  .tts-settings {
+    padding: 0.75rem;
+  }
+
+  .setting-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .setting-row label {
+    min-width: auto;
+  }
+
+  .speed-slider {
+    width: 100%;
+  }
+
+  .voice-buttons {
+    width: 100%;
+  }
+
+  .tts-controls {
+    flex-direction: column;
+  }
+
+  .tts-card .action-button {
+    width: 100%;
+    padding: 0.875rem 1.25rem;
+    font-size: 0.95rem;
+    min-width: auto;
+  }
+}
+
